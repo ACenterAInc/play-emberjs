@@ -454,7 +454,7 @@ trait EmberJsTasks extends EmberJsKeys {
   lazy val EmberUserJsCompiler = (sourceDirectory in Compile, resourceManaged in Compile, cacheDirectory, emberJsPrefix, emberUserJsTemplateFile, emberUserJsFileRegexFrom, emberUserJsFileRegexTo, emberUserJsAssetsDir, emberUserJsAssetsGlob).map {
       (src, resources, cache, prefix, templateFile, fileReplaceRegexp, fileReplaceWith, assetsDir, files) =>
               val version = "1.4.0"
-      val cacheFile = cache / "emberjuserviews"
+      val cacheFile = cache / (prefix + "_" + "emberjuserviews")
       val templatesDir = resources / "public" / "templates"
       val global = templatesDir /  templateFile
       val globalMinified = templatesDir /  (FilenameUtils.removeExtension(templateFile) + ".min.js")
@@ -470,7 +470,9 @@ trait EmberJsTasks extends EmberJsKeys {
       val (previousRelation, previousInfo) = Sync.readInfo(cacheFile)(FileInfo.lastModified.format)
       val previousGeneratedFiles = previousRelation._2s
 
+      //println(s"EmberJsCompiler... previousInfo %s vs %s".format(previousInfo, allFiles))
       if (previousInfo != allFiles) {
+        //println(s"EmberJsCompiler... previous vs allFiles... changed");
         val output = new StringBuilder
         output ++= """(function() {
           var template = Ember.Handlebars.template,
@@ -494,8 +496,9 @@ trait EmberJsTasks extends EmberJsKeys {
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
 
 
-            output ++= "\ntemplates['%s'] = template(%s);\n\n".format(template, jsSource)
+            output ++= "\ntemplates['%s'] = template(%s);\n\n".format(template.replaceFirst("base/user/views/","").replaceFirst("base/common/views/","").replaceFirst("custom/user/views/","").replaceFirst("custom/common/views/",""), jsSource)
 
+            //println(s"EmberJsCompiler... create of file %s ".format( "public/templates/" + prefix + "userjs_" + naming(name) ));
             val out = new File(resources, "public/templates/" + prefix + "userjs_" + naming(name))
             IO.write(out, jsSource)
             Seq(sourceFile -> out)
@@ -504,6 +507,8 @@ trait EmberJsTasks extends EmberJsKeys {
 
 
         output ++= "})();\n"
+
+        //println(s"EmberJsCompiler... write global..... %s".format(global));
         IO.write(global, output.toString)
 
 
@@ -513,12 +518,15 @@ trait EmberJsTasks extends EmberJsKeys {
         //val allTemplates = generated ++ Seq(global -> global, globalMinified -> globalMinified)
         val allTemplates = generated ++ Seq(global -> global, globalMinified -> globalMinified)
 
+        //println(s"EmberJsCompiler... writeCacheFile......");
         Sync.writeInfo(cacheFile,
           Relation.empty[java.io.File, java.io.File] ++ allTemplates,
           allFiles)(FileInfo.lastModified.format)
 
+        //println(s"EmberJsCompiler... return allTemplates.........");
         allTemplates.map(_._2).distinct.toSeq
       } else {
+        //println(s"EmberJsCompiler... return previousGenertaedFiles.........");
         previousGeneratedFiles.toSeq
       }
   }
@@ -621,6 +629,7 @@ val version = "1.4.0"
         output ++= """
 
                  """
+
 
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
@@ -748,9 +757,10 @@ val version = "1.4.0"
         previousGeneratedFiles.toSeq
       }
   }
+
   lazy val EmberCommonViewJsCompiler = (sourceDirectory in Compile, resourceManaged in Compile, cacheDirectory, emberJsPrefix, emberCommonViewJsTemplateFile, emberCommonViewJsFileRegexFrom, emberCommonViewJsFileRegexTo, emberCommonViewJsAssetsDir, emberCommonViewJsAssetsGlob).map {
-      (src, resources, cache, prefix, templateFile, fileReplaceRegexp, fileReplaceWith, assetsDir, files) =>
-              val version = "1.4.0"
+    (src, resources, cache, prefix, templateFile, fileReplaceRegexp, fileReplaceWith, assetsDir, files) =>
+      val version = "1.4.0"
       val cacheFile = cache / "emberjcommonviews"
       val templatesDir = resources / "public" / "templates"
       val global = templatesDir /  templateFile
@@ -772,7 +782,7 @@ val version = "1.4.0"
         output ++= """(function() {
           var template = Ember.Handlebars.template,
               templates = Ember.TEMPLATES = Ember.TEMPLATES || {};
-                 """
+                   """
 
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
@@ -815,5 +825,6 @@ val version = "1.4.0"
         previousGeneratedFiles.toSeq
       }
   }
+
 
 }

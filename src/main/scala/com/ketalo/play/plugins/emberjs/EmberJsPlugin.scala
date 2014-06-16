@@ -21,7 +21,7 @@ object EmberJsPlugin extends Plugin with EmberJsTasks {
 
   val emberUserJsSettins = Seq(
     emberJsVersion := "1.4.0",
-    emberUserJsAssetsDir <<= (sourceDirectory in Compile)(src => (src / "assets" / "templates" /  "base" / "user" / "views" )),
+    emberUserJsAssetsDir <<= (sourceDirectory in Compile)(src => (src / "assets" / "templates" )),
     emberUserJsFileEnding := ".handlebars",
     emberUserJsTemplateFile <<= (emberJsPrefix)(prefix => prefix + "/views/user.pre.js"),
     emberUserJsAssetsGlob <<= (emberUserJsAssetsDir)(assetsDir =>  (assetsDir ** "*.handlebars")),
@@ -82,7 +82,8 @@ object EmberJsPlugin extends Plugin with EmberJsTasks {
 
   val emberUserControllerJsSettings = Seq(
     emberJsVersion := "1.4.0",
-    emberUserControllerJsAssetsDir <<= (sourceDirectory in Compile)(src => (src / "assets" / "templates" /  "base" / "user" / "controllers" )),
+    //emberUserControllerJsAssetsDir <<= (sourceDirectory in Compile)(src => (src / "assets" / "templates" /  "base" / "user" / "controllers" )),
+    emberUserControllerJsAssetsDir <<= (sourceDirectory in Compile)(src => (src / "assets" / "templates" )),
     emberUserControllerJsFileEnding := ".js",
     emberUserControllerJsTemplateFile <<= (emberJsPrefix)(prefix => prefix + "/controllers/user.pre.js"),
     emberUserControllerJsAssetsGlob <<= (emberUserControllerJsAssetsDir)(assetsDir =>  (assetsDir ** "*.js")),
@@ -120,7 +121,11 @@ object EmberJsPlugin extends Plugin with EmberJsTasks {
 
   )
 
-  override def projectSettings: Seq[Setting[_]] = super.projectSettings ++ emberUserJsSettins ++ emberUserControllerJsSettings ++ emberModelJsSettings ++ emberCommonViewJsSettins ++ emberCommonControllerJsSettings ++ emberAdminViewJsSettins ++ emberAdminControllerJsSettings ++ emberUserJsOverrideSettins
+  //override def projectSettings: Seq[Setting[_]] = super.projectSettings ++ emberUserJsSettins ++ emberUserControllerJsSettings ++ emberModelJsSettings ++ emberCommonViewJsSettins ++ emberCommonControllerJsSettings ++ emberAdminViewJsSettins ++ emberAdminControllerJsSettings ++ emberUserJsOverrideSettins
+  //override def projectSettings: Seq[Setting[_]] = super.projectSettings ++ emberUserJsSettins ++ emberModelJsSettings ++ emberUserControllerJsSettings
+  override def projectSettings: Seq[Setting[_]] = super.projectSettings ++ emberUserJsSettins ++ emberUserControllerJsSettings
+  //
+  //++ emberCommonViewJsSettins
 
 
 
