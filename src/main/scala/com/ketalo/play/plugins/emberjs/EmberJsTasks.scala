@@ -202,7 +202,12 @@ trait EmberJsTasks extends EmberJsKeys {
             }*/
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
 
-            output ++= "\n//Loading user controller %s ...  \n\n acenteracontrollers['%s'] = function() { \n\n %s }\n\n".format(template, template.replaceAll("/","_"), jsSource)
+            if (template.contains("/models/")) {
+                modelId=modelId+1
+            	output ++= "\n//Loading user controller %s ...  \n\n acenteracontrollers['%s_%s'] = function() { \n\n %s }\n\n".format(template, modelId,  template.replaceAll("/","_"), jsSource)
+            } else {
+            	output ++= "\n//Loading user controller %s ...  \n\n acenteracontrollers['%s'] = function() { \n\n %s }\n\n".format(template, template.replaceAll("/","_"), jsSource)
+            }
 
 
             output ++= "\n//End of loading user controller %s \n".format(template)
