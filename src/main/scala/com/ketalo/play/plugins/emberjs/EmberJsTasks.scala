@@ -20,7 +20,7 @@ trait EmberJsTasks extends EmberJsKeys {
   }
 
   def compileJsOnly(version:String, name: String, source: String): Either[(String, Int, Int), String] = {
-    println(s"Compile JS Controllers TEST $name with ember")
+    println(s"Compile JS Controllers $name with ember")
 
     import org.mozilla.javascript._
     import org.mozilla.javascript.tools.shell._
@@ -107,7 +107,7 @@ trait EmberJsTasks extends EmberJsKeys {
   }
 
   def compile(version:String, name: String, source: String): Either[(String, Int, Int), String] = {
-    println(s"Compile handlebars template A: $name with ember")
+    println(s"Compile handlebars template : $name with ember")
 
     import org.mozilla.javascript._
     import org.mozilla.javascript.tools.shell._
@@ -506,7 +506,6 @@ trait EmberJsTasks extends EmberJsKeys {
             val f: File = new File(resources, cacheFileLocal)
             val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
                 time => {
-                  println(s" time is :%s vs %s".format(time, sourceFile.lastModified()))
                   time != sourceFile.lastModified()
                 }
               ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
