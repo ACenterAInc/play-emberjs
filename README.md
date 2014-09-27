@@ -90,6 +90,10 @@ The generated templates.pre.js has the javascript code containing all the precom
 <script src="@routes.Assets.at("templates/templates.pre.min.js")"></script>
 ```
 
+# How to build
+play publish-local
+cp /Users/XXXX/apps/play-2.2.2/repository/local/com.acentera/acentera-emberjs/scala_2.10/sbt_0.13/1.0/jars/acentera-emberjs.jar /Users/XXXX/.ivy2/local/com.acentera/acentera-emberjs/scala_2.10/sbt_0.13/1.0/jars/acentera-emberjs.jar
+
 # Sample
 
 For an example, see the bundled sample app for three different ember versions

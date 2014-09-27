@@ -5,6 +5,8 @@ import org.apache.commons.io.FilenameUtils
 
 import sbt._
 import play.PlayExceptions.AssetCompilationException
+import sbt.Keys._
+import scala.Some
 
 trait EmberJsTasks extends EmberJsKeys {
   val modificationTimeCache = scala.collection.mutable.Map.empty[String, Long] // Keeps track of the modification time
@@ -18,7 +20,7 @@ trait EmberJsTasks extends EmberJsKeys {
   }
 
   def compileJsOnly(version:String, name: String, source: String): Either[(String, Int, Int), String] = {
-    println(s"Compile JS Controllers $name with ember")
+    println(s"Compile JS Controllers TEST $name with ember")
 
     import org.mozilla.javascript._
     import org.mozilla.javascript.tools.shell._
@@ -105,7 +107,7 @@ trait EmberJsTasks extends EmberJsKeys {
   }
 
   def compile(version:String, name: String, source: String): Either[(String, Int, Int), String] = {
-    println(s"Compile handlebars template: $name with ember")
+    println(s"Compile handlebars template A: $name with ember")
 
     import org.mozilla.javascript._
     import org.mozilla.javascript.tools.shell._
@@ -183,14 +185,14 @@ trait EmberJsTasks extends EmberJsKeys {
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
             val template = templateName(sourceFile.getPath, assetsDir.getPath)
-            val jsSource = compileJsOnly(version, template, IO.read(sourceFile)).left.map {
-              case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
-                msg,
-                Some(line),
-                Some(column))
-            }.right.get
-            /*
-            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
+
+            val cacheFileLocal = "public/templates/"+ prefix + "usercontroller_" + naming(name)
+            val f: File = new File(resources, cacheFileLocal)
+            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
+              time => {
+                time != sourceFile.lastModified()
+              }
+            ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
               compileJsOnly(version, template, IO.read(sourceFile)).left.map {
                 case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
                   msg,
@@ -198,9 +200,10 @@ trait EmberJsTasks extends EmberJsKeys {
                   Some(column))
               }.right.get
             } else {
-              IO.read(new File(resources, "public/templates/" + naming(name)))
-            }*/
+              IO.read(new File(resources, cacheFileLocal))
+            }
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
+            //We do not want to overwrite the models
 
             if (template.contains("/models/")) {
                 modelId=modelId+1
@@ -211,7 +214,7 @@ trait EmberJsTasks extends EmberJsKeys {
 
 
             output ++= "\n//End of loading user controller %s \n".format(template)
-            val out = new File(resources, "public/templates/"+ prefix + "usercontroller_" + naming(name))
+            val out = new File(resources, cacheFileLocal)
             //println(s" out is : %s".format(out))
             IO.write(out, jsSource)
             Seq(sourceFile -> out)
@@ -267,14 +270,14 @@ trait EmberJsTasks extends EmberJsKeys {
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
             val template = templateName(sourceFile.getPath, assetsDir.getPath)
-            val jsSource = compileJsOnly(version, template, IO.read(sourceFile)).left.map {
-              case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
-                msg,
-                Some(line),
-                Some(column))
-            }.right.get
-            /*
-            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
+
+            val cacheFileLocal = "public/templates/" + prefix + "usercontroller_override_" + naming(name)
+            val f: File = new File(resources, cacheFileLocal)
+            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
+              time => {
+                time != sourceFile.lastModified()
+              }
+            ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
               compileJsOnly(version, template, IO.read(sourceFile)).left.map {
                 case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
                   msg,
@@ -282,15 +285,15 @@ trait EmberJsTasks extends EmberJsKeys {
                   Some(column))
               }.right.get
             } else {
-              IO.read(new File(resources, "public/templates/" + naming(name)))
-            }*/
+              IO.read(new File(resources, cacheFileLocal))
+            }
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
 
             //output ++= "\n//Loading user controller %s ...\n\n%s".format(template, jsSource)
             output ++= "\n//Loading user controller %s ...  \n\n acenteracontrollers['%s'] = function() { \n\n %s }\n\n".format(template, template.replaceAll("/","_"), jsSource)
 
             output ++= "\n//End of loading user controller %s \n".format(template)
-            val out = new File(resources, "public/templates/" + prefix + "usercontroller_override_" + naming(name))
+            val out = new File(resources, cacheFileLocal)
             //println(s" out is : %s".format(out))
             IO.write(out, jsSource)
             Seq(sourceFile -> out)
@@ -342,13 +345,15 @@ trait EmberJsTasks extends EmberJsKeys {
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
             val template = templateName(sourceFile.getPath, assetsDir.getPath)
-            val jsSource = compileJsOnly(version, template, IO.read(sourceFile)).left.map {
-              case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
-                msg,
-                Some(line),
-                Some(column))
-            }.right.get
-            /*val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
+
+
+            val cacheFileLocal = "public/templates/" + prefix + "admincontroller_" + naming(name)
+            val f: File = new File(resources, cacheFileLocal)
+            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
+              time => {
+                time != sourceFile.lastModified()
+              }
+            ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
               compileJsOnly(version, template, IO.read(sourceFile)).left.map {
                 case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
                   msg,
@@ -356,15 +361,15 @@ trait EmberJsTasks extends EmberJsKeys {
                   Some(column))
               }.right.get
             } else {
-              IO.read(new File(resources, "public/templates/" + naming(name)))
-            }*/
+              IO.read(new File(resources, cacheFileLocal))
+            }
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
 
             //output ++= "\n//Loading controller %s ...\n\n%s".format(template, jsSource)
             output ++= "\n//Loading user controller %s ...  \n\n acenteracontrollers['%s'] = function() { \n\n %s }\n\n".format(template, template.replaceAll("/","_"), jsSource)
 
             output ++= "\n//End of loading controller %s \n".format(template)
-            val out = new File(resources, "public/templates/" + prefix + "admincontroller_" + naming(name))
+            val out = new File(resources, cacheFileLocal)
             //println(s" out is : %s".format(out))
             IO.write(out, jsSource)
             Seq(sourceFile -> out)
@@ -418,7 +423,15 @@ trait EmberJsTasks extends EmberJsKeys {
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
             val template = templateName(sourceFile.getPath, assetsDir.getPath)
-            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
+
+
+            val cacheFileLocal = "public/templates/" + prefix + "adminview_" + naming(name)
+            val f: File = new File(resources, cacheFileLocal)
+            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
+              time => {
+                time != sourceFile.lastModified()
+              }
+            ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
               compile(version, template, IO.read(sourceFile)).left.map {
                 case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
                   msg,
@@ -426,9 +439,10 @@ trait EmberJsTasks extends EmberJsKeys {
                   Some(column))
               }.right.get
             } else {
-              IO.read(new File(resources, "public/templates/" + prefix + "adminview_" + naming(name)))
+              IO.read(new File(resources, cacheFileLocal))
             }
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
+
 
             output ++= "\ntemplates['%s'] = template(%s);\n\n".format(template, jsSource)
 
@@ -475,6 +489,7 @@ trait EmberJsTasks extends EmberJsKeys {
       val (previousRelation, previousInfo) = Sync.readInfo(cacheFile)(FileInfo.lastModified.format)
       val previousGeneratedFiles = previousRelation._2s
 
+
       //println(s"EmberJsCompiler... previousInfo %s vs %s".format(previousInfo, allFiles))
       if (previousInfo != allFiles) {
         //println(s"EmberJsCompiler... previous vs allFiles... changed");
@@ -486,9 +501,15 @@ trait EmberJsTasks extends EmberJsKeys {
 
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
+            val cacheFileLocal = "public/templates/" + prefix + "userjs_" + naming(name)
             val template = templateName(sourceFile.getPath, assetsDir.getPath)
-
-            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
+            val f: File = new File(resources, cacheFileLocal)
+            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
+                time => {
+                  println(s" time is :%s vs %s".format(time, sourceFile.lastModified()))
+                  time != sourceFile.lastModified()
+                }
+              ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
               compile(version, template, IO.read(sourceFile)).left.map {
                 case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
                   msg,
@@ -496,7 +517,7 @@ trait EmberJsTasks extends EmberJsKeys {
                   Some(column))
               }.right.get
             } else {
-              IO.read(new File(resources, "public/templates/" + prefix + "userjs_" + naming(name)))
+              IO.read(new File(resources, cacheFileLocal))
             }
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
 
@@ -504,7 +525,7 @@ trait EmberJsTasks extends EmberJsKeys {
             output ++= "\ntemplates['%s'] = template(%s);\n\n".format(template.replaceFirst("base/user/views/","").replaceFirst("base/common/views/","").replaceFirst("custom/user/views/","").replaceFirst("custom/common/views/",""), jsSource)
 
             //println(s"EmberJsCompiler... create of file %s ".format( "public/templates/" + prefix + "userjs_" + naming(name) ));
-            val out = new File(resources, "public/templates/" + prefix + "userjs_" + naming(name))
+            val out = new File(resources, cacheFileLocal)
             IO.write(out, jsSource)
             Seq(sourceFile -> out)
           }
@@ -568,7 +589,13 @@ val version = "1.4.0"
           case (sourceFile, name) => {
             val template = templateName(sourceFile.getPath, overrideassetsDir.getPath)
 
-            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
+            val cacheFileLocal = "public/templates/" + prefix + "userjs_override_" + naming(name)
+            val f: File = new File(resources, cacheFileLocal)
+            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
+              time => {
+                time != sourceFile.lastModified()
+              }
+            ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
               compile(version, template, IO.read(sourceFile)).left.map {
                 case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
                   msg,
@@ -576,14 +603,14 @@ val version = "1.4.0"
                   Some(column))
               }.right.get
             } else {
-              IO.read(new File(resources, "public/templates/" + prefix + "userjs_override_" + naming(name)))
+              IO.read(new File(resources, cacheFileLocal))
             }
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
 
 
             output ++= "\ntemplates['%s'] = template(%s);\n\n".format(template, jsSource)
 
-            val out = new File(resources, "public/templates/"+ prefix +"userjs_override_" + naming(name))
+            val out = new File(resources, cacheFileLocal)
             IO.write(out, jsSource)
             Seq(sourceFile -> out)
           }
@@ -639,18 +666,25 @@ val version = "1.4.0"
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
             val template = templateName(sourceFile.getPath, assetsDir.getPath)
-            val jsSource =
+
+
+            val cacheFileLocal = "public/templates/" +prefix + "commontemplates_" + naming(name)
+            val f: File = new File(resources, cacheFileLocal)
+            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
+              time => {
+                time != sourceFile.lastModified()
+              }
+            ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
               compileJsOnly(version, template, IO.read(sourceFile)).left.map {
                 case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
                   msg,
                   Some(line),
                   Some(column))
               }.right.get
-            //} else {
-//              IO.read(new File(resources, "public/templates/" + naming(name)))
-  //          }
+            } else {
+              IO.read(new File(resources, cacheFileLocal))
+            }
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
-
             //We do not want to overwrite the models
 
 
@@ -664,7 +698,7 @@ val version = "1.4.0"
               modelId = 1;
             }
 
-            val out = new File(resources, "public/templates/" +prefix + "commontemplates_" + naming(name))
+            val out = new File(resources, cacheFileLocal)
             //println(s" out is : %s".format(out))
             IO.write(out, jsSource)
             Seq(sourceFile -> out)
@@ -715,13 +749,15 @@ val version = "1.4.0"
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
             val template = templateName(sourceFile.getPath, assetsDir.getPath)
-            val jsSource = compileJsOnly(version, template, IO.read(sourceFile)).left.map {
-              case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
-                msg,
-                Some(line),
-                Some(column))
-            }.right.get
-            /*val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
+
+
+            val cacheFileLocal = "public/templates/" + prefix + "commoncontroller_" + naming(name)
+            val f: File = new File(resources, cacheFileLocal)
+            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
+              time => {
+                time != sourceFile.lastModified()
+              }
+            ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
               compileJsOnly(version, template, IO.read(sourceFile)).left.map {
                 case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
                   msg,
@@ -729,15 +765,17 @@ val version = "1.4.0"
                   Some(column))
               }.right.get
             } else {
-              IO.read(new File(resources, "public/templates/" + naming(name)))
-            }*/
+              IO.read(new File(resources, cacheFileLocal))
+            }
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
+            //We do not want to overwrite the models
+
 
             //output ++= "\n//Loading controller %s ...\n\n%s".format(template, jsSource)
             output ++= "\n//Loading controller %s ...  \n\n acenteracontrollers['%s'] = function() { \n\n %s }\n\n".format(template, template.replaceAll("/","_"), jsSource)
 
             output ++= "\n//End of loading controller %s \n".format(template)
-            val out = new File(resources, "public/templates/" + prefix + "commoncontroller_" + naming(name))
+            val out = new File(resources, cacheFileLocal)
             //println(s" out is : %s".format(out))
             IO.write(out, jsSource)
             Seq(sourceFile -> out)
@@ -792,7 +830,14 @@ val version = "1.4.0"
         val generated:Seq[(File, File)] = (files x relativeTo(assetsDir)).flatMap {
           case (sourceFile, name) => {
             val template = templateName(sourceFile.getPath, assetsDir.getPath)
-            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
+
+            val cacheFileLocal = "public/templates/" + prefix + "commonview_" + naming(name)
+            val f: File = new File(resources, cacheFileLocal)
+            val jsSource = if (modificationTimeCache.get(sourceFile.getAbsolutePath).map(
+              time => {
+                time != sourceFile.lastModified()
+              }
+            ).getOrElse(f.lastModified() < sourceFile.lastModified())) {
               compile(version, template, IO.read(sourceFile)).left.map {
                 case (msg, line, column) => throw AssetCompilationException(Some(sourceFile),
                   msg,
@@ -800,13 +845,13 @@ val version = "1.4.0"
                   Some(column))
               }.right.get
             } else {
-              IO.read(new File(resources, "public/templates/" + prefix + "commonview_" + naming(name)))
+              IO.read(new File(resources, cacheFileLocal))
             }
             modificationTimeCache += (sourceFile.getAbsolutePath -> sourceFile.lastModified)
 
             output ++= "\ntemplates['%s'] = template(%s);\n\n".format(template, jsSource)
 
-            val out = new File(resources, "public/templates/" + prefix + "commonview_" + naming(name))
+            val out = new File(resources, cacheFileLocal)
             IO.write(out, jsSource)
             Seq(sourceFile -> out)
           }
