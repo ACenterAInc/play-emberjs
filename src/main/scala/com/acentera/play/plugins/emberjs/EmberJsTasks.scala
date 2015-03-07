@@ -180,7 +180,7 @@ trait EmberJsTasks extends EmberJsKeys {
 
 
             val global = src / "public" / "templates" / f(0) / prefix / "views" / templateFile
-            val globalMinified = templatesDir / s"${FilenameUtils.removeExtension(templateFile)}.min.js"
+            val globalMinified = src / "public" / "templates" / f(0) / prefix / "views" / s"${FilenameUtils.removeExtension(templateFile)}.min.js"
 
             val latestTimestamp = files.get.sortBy(f => FileInfo.lastModified(f).lastModified).reverse.map(f => FileInfo.lastModified(f)).headOption.getOrElse(FileInfo.lastModified(global))
             val currentInfos = files.get.map(f => f -> FileInfo.lastModified(f))
@@ -250,13 +250,15 @@ trait EmberJsTasks extends EmberJsKeys {
               if (hasNewItems > 0 ) {
                 //println(s"EmberJsCompiler... write global..... %s".format(global));
                 IO.write(global, output.toString)
+
+                val minified = play.core.jscompile.JavascriptCompiler.minify(output.toString, None)
+                IO.write(globalMinified, minified)
               } else {
                 //println(s"EmberJsCompiler... DID NOT write global..... %s".format(global));
               }
 
 
-              //val minified = play.core.jscompile.JavascriptCompiler.minify(output.toString, None)
-              //IO.write(globalMinified, minified)
+
 
               val allTemplates = Seq(global -> global, globalMinified -> globalMinified)
               if (hasNewItems > 0 ) {
@@ -306,7 +308,7 @@ trait EmberJsTasks extends EmberJsKeys {
 
 
         val global = src / "public" / "templates" / f(0) / prefix / "controllers" / templateFile
-        val globalMinified = templatesDir / s"${FilenameUtils.removeExtension(templateFile)}.min.js"
+        val globalMinified = src / "public" / "templates" / f(0) / prefix / "controllers" / s"${FilenameUtils.removeExtension(templateFile)}.min.js"
 
         val latestTimestamp = files.get.sortBy(f => FileInfo.lastModified(f).lastModified).reverse.map(f => FileInfo.lastModified(f)).headOption.getOrElse(FileInfo.lastModified(global))
         val currentInfos = files.get.map(f => f -> FileInfo.lastModified(f))
@@ -374,13 +376,15 @@ trait EmberJsTasks extends EmberJsKeys {
           if (hasNewItems > 0 ) {
             //println(s"EmberJsCompiler... write global..... %s".format(global));
             IO.write(global, output.toString)
+
+            val minified = play.core.jscompile.JavascriptCompiler.minify(output.toString, None)
+            IO.write(globalMinified, minified)
           } else {
             //println(s"EmberJsCompiler... DID NOT write global..... %s".format(global));
           }
 
 
-          //val minified = play.core.jscompile.JavascriptCompiler.minify(output.toString, None)
-          //IO.write(globalMinified, minified)
+
 
           val allTemplates = Seq(global -> global, globalMinified -> globalMinified)
           if (hasNewItems > 0 ) {
@@ -434,7 +438,7 @@ trait EmberJsTasks extends EmberJsKeys {
 
 
         val global = src / "public" / "templates" / f(0) / prefix / "models" / templateFile
-        val globalMinified = templatesDir / s"${FilenameUtils.removeExtension(templateFile)}.min.js"
+        val globalMinified = src / "public" / "templates" / f(0) / prefix / "models" / s"${FilenameUtils.removeExtension(templateFile)}.min.js"
 
         val latestTimestamp = files.get.sortBy(f => FileInfo.lastModified(f).lastModified).reverse.map(f => FileInfo.lastModified(f)).headOption.getOrElse(FileInfo.lastModified(global))
         val currentInfos = files.get.map(f => f -> FileInfo.lastModified(f))
@@ -505,13 +509,14 @@ trait EmberJsTasks extends EmberJsKeys {
           if (hasNewItems > 0 ) {
             //println(s"EmberJsCompiler... write global..... %s".format(global));
             IO.write(global, output.toString)
+
+            val minified = play.core.jscompile.JavascriptCompiler.minify(output.toString, None)
+            IO.write(globalMinified, minified)
+
           } else {
             //println(s"EmberJsCompiler... DID NOT write global..... %s".format(global));
           }
 
-
-          //val minified = play.core.jscompile.JavascriptCompiler.minify(output.toString, None)
-          //IO.write(globalMinified, minified)
 
           val allTemplates = Seq(global -> global, globalMinified -> globalMinified)
           if (hasNewItems > 0 ) {
