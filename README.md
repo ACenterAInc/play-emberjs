@@ -1,4 +1,4 @@
-# Ember.js Plugin by (ACenterA)[http://www.acentera.com/]
+# Ember.js Plugin by ACenterA http://www.acentera.com/
 
 This plugin provides build time compilation for [Ember.js](https://github.com/emberjs/ember.js) handlebar templates.
 
