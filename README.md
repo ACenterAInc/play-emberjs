@@ -1,13 +1,18 @@
-# Ember.js Plugin
+# Ember.js Plugin by (ACenterA)[http://www.acentera.com/]
 
 This plugin provides build time compilation for [Ember.js](https://github.com/emberjs/ember.js) handlebar templates.
+
+Many thanks to @Krumpi that provided a good EmberJS Plugin, unfortunately we wanted to have more flexibility than a single "javascript" file.
+
+This work is based on the original version of https://github.com/krumpi/play-emberjs
+
 
 # How to install
 
 * play 2.2.x
 
 ```
-addSbtPlugin("com.ketalo.play.plugins" % "emberjs" % "1.4.0-SNAPSHOT")
+addSbtPlugin("com.acentera" % "emberjs" % "1.0-SNAPSHOT")
 ```
 
 You may need to add a reference to the Sonatype repository
@@ -24,7 +29,7 @@ resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositori
 * play 2.1.x:
 
 ```
-addSbtPlugin("com.ketalo.play.plugins" % "emberjs" % "1.4.0-SNAPSHOT")
+addSbtPlugin("com.acentera" % "emberjs" % "1.0.0-SNAPSHOT")
 ``` 
 
 to your plugin.sbt
@@ -34,7 +39,7 @@ to your plugin.sbt
 * Select your ember version in your Build.scala. Currently supported versions include 1.4.0, 1.3.0, 1.2.0, 1.1.2, 1.0.0, 1.0.0-rc.8, 1.0.0-rc.7, 1.0.0-rc.6, 1.0.0-rc.5, 1.0.0-rc.4, 1.0.0-rc.3, 1.0.0-rc.1 and 1.0.0-pre.2
 
 ```scala
-  import com.ketalo.play.plugins.emberjs.EmberJsKeys
+  import com.acentera.play.plugins.emberjs.EmberJsKeys
   import sbt._
 
   object ApplicationBuild extends Build with EmberJsKeys {
@@ -53,6 +58,10 @@ to your plugin.sbt
 
 * Or if you prefer using build.sbt:
 
+
+the emberJsPrefix is required, that will map to the /assets/templates/$(emberJsPrefix)/{views,models,controllers}/objects.js
+
+
 ```
 name := "<My app name>"
 
@@ -64,55 +73,66 @@ libraryDependencies ++= Seq(
   cache
 )
 
-emberJsVersion := "1.4.0"
+lazy val root = (project in file(".")).enablePlugins(PlayScala).enablePlugins(PlayJava).settings(
+   exportJars := false,
+   emberJsPrefix:= "main",
+   emberObjects := Seq( Seq("common","objects.js"),
+                        Seq("user","objects.js"),
+                        Seq("admin","objects.js")
+   ),
+   watchSources := (watchSources.value
+     --- baseDirectory.value / "app/assets/templates" ** "*"
+     --- baseDirectory.value / "public"     ** "*").get
+).dependsOn(acentera)
+
+
 
 play.Project.playScalaSettings
 ```
 
-* Include ember.js and the corresponding jQuery and handlebars files. Note that they are not provided by the sbt plugin. Check the ember site for them: [ember.js](https://ember.js) 
+* Include any embers.js (except the 2.0) which is not yet supported.
 ```html
     <script src="@routes.Assets.at("javascripts/jquery-1.8.2.min.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/handlebars-v1.3.0.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/ember.min.js")" type="text/javascript"></script>
 ```
 
-* Put your handlebar template (.handlebars) files under the ```app/assets/templates``` directory
+* Put your handlebar template (.handlebars) files under the ```app/assets/templates/views``` directory
+* Put your Ember JS Controllers (.js) files under the ```app/assets/templates/controllers``` directory
+* Put your Ember JS Models (.js) files under the ```app/assets/templates/models``` directory
 
 * Reference the generated .js in a  ```<script>``` tag:
 ```html
-<script src="@routes.Assets.at("templates/templates.pre.js")"></script>
+	<script src="@routes.Assets.at("templates/common/main/models/objects.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("templates/common/main/views/objects.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("templates/common/main/controllers/objects.js")" type="text/javascript"></script>
 ```
 
 The generated templates.pre.js has the javascript code containing all the precompiled templates in that directory
 
 * **OR** Reference the minified .js in a  ```<script>``` tag:
 ```
-<script src="@routes.Assets.at("templates/templates.pre.min.js")"></script>
+	<script src="@routes.Assets.at("templates/common/main/models/objects.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("templates/common/main/views/objects.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("templates/common/main/controllers/objects.min.js")" type="text/javascript"></script>
 ```
+
+# How to build
+activator clean
+activator publishLocal
 
 # Sample
 
-For an example, see the bundled sample app for three different ember versions
-
-* [ember 1.4.0](/sample-1.4.0)
-* [ember 1.3.0](/sample-1.3.0)
-* [ember 1.2.0](/sample-1.2.0)
-* [ember 1.1.2](/sample-1.1.2)
-* [ember 1.0.0](/sample-1.0.0)
-* [ember 1.0.0-rc.8](samples-pre-1.0/sample-1.0.0-rc.8)
-* [ember 1.0.0-rc.7](samples-pre-1.0/sample-1.0.0-rc.7)
-* [ember 1.0.0-rc.6](samples-pre-1.0/sample-1.0.0-rc.6)
-* [ember 1.0.0-rc.5](samples-pre-1.0/sample-1.0.0-rc.5)
-* [ember 1.0.0-rc.4](samples-pre-1.0/sample-1.0.0-rc.4)
-* [ember 1.0.0-rc.3](samples-pre-1.0/sample-1.0.0-rc.3)
-* [ember 1.0.0-rc.1](samples-pre-1.0/sample-1.0.0-rc.1)
-* [ember 1.0.0-pre.2](samples-pre-1.0/sample-1.0.0-pre.2)
+For Samples see the ACenterA Inc. github Enterprise portal demo : https://github.com/ACenterAInc/acentera-web
 
 # Acknowledgments
 
 This plugin was based the work from the blog post [Ember/Handlebars template precompilation with Play](http://eng.netwallet.com/2012/04/25/emberhandlebars-template-precompilation-with-play/)
 
 A good portion of the plugin internals were based on the [Dust.js play plugin](https://github.com/typesafehub/play-plugins/tree/master/dust)
+
+This plugin was based the work from the gitbhut play-emberjs from Krump [GitHub Original Play-EmberJs template precompilation with Play](https://github.com/krumpi/play-emberjs)
+
 
 # Modifications to ember.js
 
@@ -129,7 +149,9 @@ The changes required are:
 
 This software is licensed under the Apache 2 license, quoted below.
 
-Copyright 2013 by Carlos Quiroz
+Copyright 2013 by AFrancis Lavalliere  
+
+Special thanks to Carlos Quiroz to have published its emberjs work, this would not of been possible without it.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this project except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
@@ -137,14 +159,4 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 # Changelog
 
-* version 1.4.0 Supports ember.js 1.4.0
-* version 1.3.0 Supports ember.js 1.3.0
-* version 1.2.0 Supports ember.js 1.2.0 and adds smarter caching to compile only templates that have changed
-* version 1.1.2 Supports ember.js 1.1.2 and play 2.2.x
-* version 1.0.0 Supports ember.js 1.0.0
-* version 0.6.0-SNAPSHOT Include support for ember.js 1.0 rc8
-* version 0.5.0-SNAPSHOT Include support for ember.js 1.0 rc7
-* version 0.4.0-SNAPSHOT Include support for ember.js 1.0 rc6
-* version 0.3.0-SNAPSHOT Include support for ember.js 1.0 rc5
-* version 0.2.0-SNAPSHOT Include support for ember.js 1.0 rc4
-* version 0.1.0-SNAPSHOT Initial release
+* version 1.0-SNAPSHOT Initial release
