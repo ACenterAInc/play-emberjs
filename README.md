@@ -98,8 +98,11 @@ The generated templates.pre.js has the javascript code containing all the precom
 ```
 
 # How to build
-activator clean
-activator publishLocal
+
+```
+    activator clean
+    activator publishLocal
+```
 
 # Sample
 
