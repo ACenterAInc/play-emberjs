@@ -132,7 +132,7 @@ The changes required are:
 
 This software is licensed under the Apache 2 license, quoted below.
 
-Copyright 2013 by AFrancis Lavalliere  
+Copyright 2015 by Francis Lavalliere  
 
 Special thanks to Carlos Quiroz to have published its emberjs work, this would not of been possible without it.
 
