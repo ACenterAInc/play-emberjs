@@ -120,7 +120,7 @@ trait EmberJsTasks extends EmberJsKeys {
 
 
   def compile(version:String, name: String, source: String): Either[(String, Int, Int), String] = {
-    println(s"Compile JS/Handlebars $name")
+    println(s"Compile Handlebars JS $name")
     import org.mozilla.javascript._
     import org.mozilla.javascript.tools.shell._
 
@@ -207,9 +207,9 @@ trait EmberJsTasks extends EmberJsKeys {
                   val template = templateName(sourceFile.getPath, assetDir.getPath)
 
                   val jsSource = if (modificationTimeCache.get(prefix + "_" + sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
-
+                    //println(s"GOT TEST A");
                     val ff =new File(src, "public/templates/generated/" + prefix + f(0) + "_" + naming(name))
-                    if ((ff != null) && (sourceFile.lastModified() > ff.lastModified())) {
+                    if ((ff == null) || (sourceFile.lastModified() > ff.lastModified())) {
                       hasNewItems = 1;
                       hasNewItemsTmp = 1;
                       compile(version, template, IO.read(sourceFile)).left.map {
@@ -226,12 +226,13 @@ trait EmberJsTasks extends EmberJsKeys {
                   }
                   modificationTimeCache += (prefix + "_" + sourceFile.getAbsolutePath -> sourceFile.lastModified)
 
-
+                  //base/admin/views/
+                  /*println(s"GOT EMBER TEST %s".format(template));
+                  println(s"GOT EMBER TEST A %s".format("base/" + f(0) + "/views/", ""));
+                  println(s"GOT EMBER TEST 1 %s".format(template.replaceFirst("base/" + f(0) + "/views/", "")));
+                  */
                   output ++= "\ntemplates['%s'] = template(%s);\n\n".format(
-                    template.replaceFirst("base/user/views/", "")
-                      .replaceFirst("base/common/views/", "")
-                      .replaceFirst("custom/user/views/", "")
-                      .replaceFirst("custom/common/views/", ""),
+                    template.replaceFirst("base/" + f(0) + "/views/", ""),
                     jsSource)
 
                   //println(s"EmberJsCompiler... create of file %s ".format("public/templates/" + prefix + f(0) + "_" + naming(name)));
@@ -336,7 +337,7 @@ trait EmberJsTasks extends EmberJsKeys {
               val jsSource = if (modificationTimeCache.get(prefix + "_" + sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
 
                 val ff =new File(src, "public/templates/generated/" + prefix + f(0) + "controller_" + naming(name))
-                if ((ff != null) && (sourceFile.lastModified() > ff.lastModified())) {
+                if ((ff == null) || (sourceFile.lastModified() > ff.lastModified())) {
                   hasNewItems = 1;
                   hasNewItemsTmp = 1;
                   val jsSource = compileJsOnly(version, template, IO.read(sourceFile)).left.map {
@@ -465,7 +466,7 @@ trait EmberJsTasks extends EmberJsKeys {
 
               val jsSource = if (modificationTimeCache.get(prefix + "_" + sourceFile.getAbsolutePath).map(time => time != sourceFile.lastModified()).getOrElse(true)) {
                 val ff =new File(src, "public/templates/generated/" + prefix + f(0) + "models_" + naming(name))
-                if ((ff != null) && (sourceFile.lastModified() > ff.lastModified())) {
+                if ((ff == null) || (sourceFile.lastModified() > ff.lastModified())) {
                   hasNewItems = 1;
                   hasNewItemsTmp = 1;
                   val jsSource = compileJsOnly(version, template, IO.read(sourceFile)).left.map {
