@@ -36,27 +36,7 @@ to your plugin.sbt
 
 # How to Use
 
-* Select your ember version in your Build.scala. Currently supported versions include 1.4.0, 1.3.0, 1.2.0, 1.1.2, 1.0.0, 1.0.0-rc.8, 1.0.0-rc.7, 1.0.0-rc.6, 1.0.0-rc.5, 1.0.0-rc.4, 1.0.0-rc.3, 1.0.0-rc.1 and 1.0.0-pre.2
-
-```scala
-  import com.acentera.play.plugins.emberjs.EmberJsKeys
-  import sbt._
-
-  object ApplicationBuild extends Build with EmberJsKeys {
-
-    val appName         = "play-emberjs-sample"
-    val appVersion      = "1.0-SNAPSHOT"
-
-    val appDependencies = Seq.empty
-
-    val main = play.Project(appName, appVersion, appDependencies).settings(
-      emberJsVersion := "1.4.0"
-    )
-
-  }
-```
-
-* Or if you prefer using build.sbt:
+* With build.sbt:
 
 
 the emberJsPrefix is required, that will map to the /assets/templates/$(emberJsPrefix)/{views,models,controllers}/objects.js
